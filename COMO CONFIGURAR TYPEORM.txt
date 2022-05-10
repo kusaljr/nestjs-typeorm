@@ -1,0 +1,7 @@
+1. npm i @nestjs/typeorm typeorm
+
+2. npm i mysql2 ou sqlit3
+
+3. setar em app.module.ts
+
+imports: [TypeOrmModule.forRoot(ormconfig.ts)]
