@@ -17,7 +17,8 @@ export class AppGateway {
   }
 
   @SubscribeMessage('test-message')
-  handleTestMessages(payload: any){
-    this.server.emit('test', "this is test")
+  handleTestMessages(client:any, payload: any):void{
+    this.server.emit('test', payload) 
+
   }
 }

@@ -2,12 +2,14 @@ import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as io from 'socket.io-client';
 import { AppModule } from '../../app.module';
+import * as MockedSocket from "socket.io-mock"
 
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
-  let connectToSocketIO: () => io.Socket;
+  let mockSocket
 
+  let connectToSocketIO: () => io.Socket;
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
@@ -21,6 +23,8 @@ describe('AppController (e2e)', () => {
       transports: ['websocket'], 
       forceNew: true,
     });
+    mockSocket = new MockedSocket()
+
   });
 
   afterEach(async () => {
@@ -89,14 +93,14 @@ describe('AppController (e2e)', () => {
 
   it('should recieve what it emitted in test-message', (done)=>{
       const socket = connectToSocketIO();
-      
+      let str: String = 'Hello World' 
       socket.on('connect', ()=>{
-          socket.emit('test-message', 'Test')
+          socket.emit('test-message', str)
       })
 
       socket.on('test', (message)=>{
         try {
-          expect(message).toBe('this is test')
+          expect(message).toBe('Hello World')
           socket.disconnect()
           done()
         } catch (error) {
@@ -108,23 +112,10 @@ describe('AppController (e2e)', () => {
 
   })
 
-  it('testing with try catch', (done)=>{
-    const socket = connectToSocketIO();
-    socket.on('connect', ()=>{
-      socket.emit('test-message', 'Test');
-    });
-    let str:String = 'this is test'
-    socket.on('test', (message)=>{
-      try {
-        expect(message).toBe('aslkddnalskjda')
-        socket.disconnect()
-        done()
-      } catch (error) {
-        socket.disconnect()
-        done(error)
-      }
+  it('testing it with mocked socket library...', ()=>{
+    mockSocket.on('message', (message: any)=>{
+      expect(message).toEqual('Hello World')
     })
-
-    socket.on('error', done)
+    mockSocket.socketClient.emit('message', 'Hello World')    
   })
 });
