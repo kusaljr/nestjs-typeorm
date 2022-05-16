@@ -13,7 +13,7 @@ export class AppGateway {
 
   @SubscribeMessage('message')
   handleMessage(client: any, payload: any): WsResponse<any> {
-    return { event: 'message', data: 'hello' };
+    return { event: 'message', data:payload };
   }
 
   @SubscribeMessage('test-message')

@@ -27,6 +27,7 @@ describe('AppController (e2e)', () => {
     await app.close();
   });
 
+
   it('should connect and disconnect', (done) => {
     const socket = connectToSocketIO();
 
@@ -46,8 +47,13 @@ describe('AppController (e2e)', () => {
     
     socket.on('connect', () => {
       socket.emit('echo', 'Test', (payload) => {
-        expect(payload).toBe('Test');
-        socket.disconnect();
+        try {
+          expect(payload).toBe('Test');
+          socket.disconnect();
+        } catch (error) {
+          socket.disconnect()
+          done(error)
+        }
       });
     });
 
@@ -61,14 +67,20 @@ describe('AppController (e2e)', () => {
 
   it('should return emit message when message is emitted', (done) => {
     const socket = connectToSocketIO();
-    
+    let msg: string = 'Test'
     socket.on('connect', () => {
-      socket.emit('message', 'Test');
+      socket.emit('message', msg);
     });
 
     socket.on('message', (message) => {
-      expect(message).toBe('hello');
-      done()
+      try {
+        expect(message).toBe(msg)
+        socket.disconnect()
+        done()
+      } catch (error) {     
+        socket.disconnect()
+        done(error)
+      }
     });
     
   });
@@ -83,25 +95,32 @@ describe('AppController (e2e)', () => {
       })
 
       socket.on('test', (message)=>{
-        expect(message).toBe(message)
-        socket.disconnect();
-        done()
+        try {
+          expect(message).toBe('this is test')
+          socket.disconnect()
+          done()
+        } catch (error) {
+          socket.disconnect()
+          done(error)    
+        }
       })
       socket.on('error', done);
 
   })
 
-  it('testing it as return instead of done', (done)=>{
+  it('testing with try catch', (done)=>{
     const socket = connectToSocketIO();
     socket.on('connect', ()=>{
       socket.emit('test-message', 'Test');
     });
-
+    let str:String = 'this is test'
     socket.on('test', (message)=>{
       try {
-        expect(message).toEqual('hello')
+        expect(message).toBe('aslkddnalskjda')
+        socket.disconnect()
         done()
       } catch (error) {
+        socket.disconnect()
         done(error)
       }
     })
